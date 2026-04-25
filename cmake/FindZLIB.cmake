@@ -1,0 +1,22 @@
+# Shim FindZLIB.cmake so dependencies that call find_package(ZLIB)
+# (e.g. libmysofa) pick up the static zlib target built via CPM.
+
+if (TARGET zlibstatic)
+    set(ZLIB_FOUND TRUE)
+    set(ZLIB_LIBRARIES zlibstatic)
+    set(ZLIB_LIBRARY zlibstatic)
+    if (DEFINED zlib_SOURCE_DIR)
+        set(ZLIB_INCLUDE_DIRS "${zlib_SOURCE_DIR}" "${zlib_BINARY_DIR}")
+        set(ZLIB_INCLUDE_DIR "${zlib_SOURCE_DIR}")
+    elseif (DEFINED ZLIB_PICOTADO_INCLUDE_DIRS)
+        set(ZLIB_INCLUDE_DIRS "${ZLIB_PICOTADO_INCLUDE_DIRS}")
+        set(ZLIB_INCLUDE_DIR "${ZLIB_PICOTADO_INCLUDE_DIRS}")
+    endif()
+    if (NOT TARGET ZLIB::ZLIB)
+        add_library(ZLIB::ZLIB ALIAS zlibstatic)
+    endif()
+    message(STATUS "[picotado FindZLIB shim] ZLIB_INCLUDE_DIRS=${ZLIB_INCLUDE_DIRS}")
+    return()
+endif()
+
+include("${CMAKE_ROOT}/Modules/FindZLIB.cmake")

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<!--
+  Standalone browser test for the Picotado UI.
+  Renders the same DOM/CSS as the real plugin, but driven by fake
+  parameter states (no JUCE backend needed).
+
+  Usage:
+    cd plugin/ui/public
+    python -m http.server 8765 --bind 127.0.0.1
+    # open http://127.0.0.1:8765/test.html
+-->
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>PICOTADO (test)</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Audiowide&family=VT323&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script type="module" src="js/test-entry.js"></script>
+  </head>
+  <body>
+    <div class="bg-stars"></div>
+    <div class="bg-sun"></div>
+    <div class="bg-grid"></div>
+
+    <header>
+      <h1 data-text="PICOTADO">PICOTADO</h1>
+      <p class="subtitle">
+        <span id="vendor"></span> &nbsp;//&nbsp;
+        <span id="pluginName"></span> v<span id="pluginVersion"></span>
+      </p>
+    </header>
+
+    <main>
+      <section class="panel">
+        <h2>HRTF // BINAURAL</h2>
+        <div class="row">
+          <button id="loadSofaButton" class="btn">Load SOFA…</button>
+          <button id="unloadSofaButton" class="btn ghost">Clear</button>
+          <div class="status">
+            <span class="dot" id="hrtfDot"></span>
+            <span id="hrtfStatus">No SOFA — ITD/ILD fallback</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>GRAIN ENGINE</h2>
+        <div class="knobs">
+          <div class="knob-wrap" data-param="GRAIN_SIZE" data-format="ms" data-label="GRAIN SIZE"></div>
+          <div class="knob-wrap" data-param="DENSITY"     data-format="hz" data-label="DENSITY"></div>
+          <div class="knob-wrap" data-param="PITCH"       data-format="st" data-label="PITCH"></div>
+          <div class="knob-wrap" data-param="PITCH_RAND"  data-format="st" data-label="PITCH RND"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>POSITION // SPACE</h2>
+        <div class="knobs">
+          <div class="knob-wrap" data-param="POSITION"      data-format="ms"  data-label="POSITION"></div>
+          <div class="knob-wrap" data-param="POSITION_RAND" data-format="ms"  data-label="POS RND"></div>
+          <div class="knob-wrap" data-param="SPREAD"        data-format="deg" data-label="SPREAD"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>OUTPUT</h2>
+        <div class="knobs">
+          <div class="knob-wrap" data-param="DRY_WET" data-format="lin" data-label="DRY/WET"></div>
+          <div class="knob-wrap" data-param="GAIN"    data-format="db"  data-label="GAIN"></div>
+        </div>
+        <div class="toggles">
+          <label class="switch">
+            <input type="checkbox" id="freeze" />
+            <span class="slider"></span>
+            <span class="switch-label">FREEZE</span>
+          </label>
+          <label class="switch">
+            <input type="checkbox" id="bypass" />
+            <span class="slider"></span>
+            <span class="switch-label">BYPASS</span>
+          </label>
+          <div class="meter">
+            ACTIVE GRAINS <strong id="activeGrains">42</strong>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span class="copyleft">// BORATO COMPANY · TEST HARNESS</span>
+    </footer>
+  </body>
+</html>

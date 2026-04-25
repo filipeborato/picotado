@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="picot1" name="Picotado" projectType="audioplug" version="0.1.0"
+              companyName="Borato Company" companyCopyright="Borato Company"
+              bundleIdentifier="com.boratocompany.picotado"
+              pluginManufacturerCode="BoCo" pluginCode="Pico"
+              pluginFormats="buildVST3,buildStandalone"
+              pluginCharacteristicsValue=""
+              pluginAUMainType="'aufx'" pluginVST3Category="Fx"
+              cppLanguageStandard="20"
+              defines="JUCE_WEB_BROWSER=1&#10;JUCE_USE_CURL=0&#10;JUCE_VST3_CAN_REPLACE_VST2=0&#10;JUCE_USE_WIN_WEBVIEW2_WITH_STATIC_LINKING=1&#10;MYSOFA_STATIC=1&#10;ZIPPED_FILES_PREFIX=&quot;public/&quot;&#10;JUCE_PRODUCT_NAME=&quot;Picotado&quot;&#10;JUCE_COMPANY_NAME=&quot;Borato Company&quot;&#10;JUCE_PRODUCT_VERSION=&quot;0.1.0&quot;"
+              jucerFormatVersion="1" useAppConfig="0" addUsingNamespaceToJuceHeader="0">
+  <MAINGROUP id="picotMG" name="Picotado">
+    <GROUP id="picotSrc" name="Source">
+      <GROUP id="picotPlugin" name="Plugin">
+        <FILE id="ppP01" name="PluginProcessor.h"  compile="0" resource="0" file="plugin/include/Picotado/PluginProcessor.h"/>
+        <FILE id="ppP02" name="PluginEditor.h"     compile="0" resource="0" file="plugin/include/Picotado/PluginEditor.h"/>
+        <FILE id="ppP03" name="ParameterIDs.h"     compile="0" resource="0" file="plugin/include/Picotado/ParameterIDs.h"/>
+        <FILE id="ppP04" name="GranularEngine.h"   compile="0" resource="0" file="plugin/include/Picotado/GranularEngine.h"/>
+        <FILE id="ppP05" name="Grain.h"            compile="0" resource="0" file="plugin/include/Picotado/Grain.h"/>
+        <FILE id="ppP06" name="BinauralRenderer.h" compile="0" resource="0" file="plugin/include/Picotado/BinauralRenderer.h"/>
+        <FILE id="ppP07" name="PluginProcessor.cpp"  compile="1" resource="0" file="plugin/source/PluginProcessor.cpp"/>
+        <FILE id="ppP08" name="PluginEditor.cpp"     compile="1" resource="0" file="plugin/source/PluginEditor.cpp"/>
+        <FILE id="ppP09" name="GranularEngine.cpp"   compile="1" resource="0" file="plugin/source/GranularEngine.cpp"/>
+        <FILE id="ppP10" name="BinauralRenderer.cpp" compile="1" resource="0" file="plugin/source/BinauralRenderer.cpp"/>
+      </GROUP>
+      <GROUP id="picotMysofa" name="libmysofa">
+        <FILE id="msf01" name="cache.c"        compile="1" resource="0" file="libs/libmysofa/src/hrtf/cache.c"/>
+        <FILE id="msf02" name="check.c"        compile="1" resource="0" file="libs/libmysofa/src/hrtf/check.c"/>
+        <FILE id="msf03" name="easy.c"         compile="1" resource="0" file="libs/libmysofa/src/hrtf/easy.c"/>
+        <FILE id="msf04" name="interpolate.c"  compile="1" resource="0" file="libs/libmysofa/src/hrtf/interpolate.c"/>
+        <FILE id="msf05" name="kdtree.c"       compile="1" resource="0" file="libs/libmysofa/src/hrtf/kdtree.c"/>
+        <FILE id="msf06" name="lookup.c"       compile="1" resource="0" file="libs/libmysofa/src/hrtf/lookup.c"/>
+        <FILE id="msf07" name="loudness.c"     compile="1" resource="0" file="libs/libmysofa/src/hrtf/loudness.c"/>
+        <FILE id="msf08" name="minphase.c"     compile="1" resource="0" file="libs/libmysofa/src/hrtf/minphase.c"/>
+        <FILE id="msf09" name="neighbors.c"    compile="1" resource="0" file="libs/libmysofa/src/hrtf/neighbors.c"/>
+        <FILE id="msf10" name="reader.c"       compile="1" resource="0" file="libs/libmysofa/src/hrtf/reader.c"/>
+        <FILE id="msf11" name="resample.c"     compile="1" resource="0" file="libs/libmysofa/src/hrtf/resample.c"/>
+        <FILE id="msf12" name="spherical.c"    compile="1" resource="0" file="libs/libmysofa/src/hrtf/spherical.c"/>
+        <FILE id="msf13" name="tools.c"        compile="1" resource="0" file="libs/libmysofa/src/hrtf/tools.c"/>
+        <FILE id="msf14" name="btree.c"        compile="1" resource="0" file="libs/libmysofa/src/hdf/btree.c"/>
+        <FILE id="msf15" name="dataobject.c"   compile="1" resource="0" file="libs/libmysofa/src/hdf/dataobject.c"/>
+        <FILE id="msf16" name="fractalhead.c"  compile="1" resource="0" file="libs/libmysofa/src/hdf/fractalhead.c"/>
+        <FILE id="msf17" name="gcol.c"         compile="1" resource="0" file="libs/libmysofa/src/hdf/gcol.c"/>
+        <FILE id="msf18" name="gunzip.c"       compile="1" resource="0" file="libs/libmysofa/src/hdf/gunzip.c"/>
+        <FILE id="msf19" name="superblock.c"   compile="1" resource="0" file="libs/libmysofa/src/hdf/superblock.c"/>
+        <FILE id="msf20" name="speex_resampler.c" compile="1" resource="0" file="libs/libmysofa/src/resampler/speex_resampler.c"/>
+      </GROUP>
+      <GROUP id="picotZlib" name="zlib">
+        <FILE id="zl01" name="adler32.c"  compile="1" resource="0" file="libs/zlib/adler32.c"/>
+        <FILE id="zl02" name="compress.c" compile="1" resource="0" file="libs/zlib/compress.c"/>
+        <FILE id="zl03" name="crc32.c"    compile="1" resource="0" file="libs/zlib/crc32.c"/>
+        <FILE id="zl04" name="deflate.c"  compile="1" resource="0" file="libs/zlib/deflate.c"/>
+        <FILE id="zl05" name="gzclose.c"  compile="1" resource="0" file="libs/zlib/gzclose.c"/>
+        <FILE id="zl06" name="gzlib.c"    compile="1" resource="0" file="libs/zlib/gzlib.c"/>
+        <FILE id="zl07" name="gzread.c"   compile="1" resource="0" file="libs/zlib/gzread.c"/>
+        <FILE id="zl08" name="gzwrite.c"  compile="1" resource="0" file="libs/zlib/gzwrite.c"/>
+        <FILE id="zl09" name="inffast.c"  compile="1" resource="0" file="libs/zlib/inffast.c"/>
+        <FILE id="zl10" name="inflate.c"  compile="1" resource="0" file="libs/zlib/inflate.c"/>
+        <FILE id="zl11" name="inftrees.c" compile="1" resource="0" file="libs/zlib/inftrees.c"/>
+        <FILE id="zl12" name="trees.c"    compile="1" resource="0" file="libs/zlib/trees.c"/>
+        <FILE id="zl13" name="uncompr.c"  compile="1" resource="0" file="libs/zlib/uncompr.c"/>
+        <FILE id="zl14" name="zutil.c"    compile="1" resource="0" file="libs/zlib/zutil.c"/>
+      </GROUP>
+      <GROUP id="picotGen" name="Generated">
+        <FILE id="gen01" name="BinaryData1.cpp" compile="1" resource="0"
+              file="vs2026-build/plugin/juce_binarydata_WebViewFiles/JuceLibraryCode/BinaryData1.cpp"/>
+      </GROUP>
+    </GROUP>
+  </MAINGROUP>
+  <EXPORTFORMATS>
+    <VS2026 targetFolder="Builds/VisualStudio2026"
+            extraCompilerFlags="/wd4100 /wd4244 /wd4267 /wd4127 /wd4189"
+            externalLibraries="WebView2LoaderStatic.lib&#10;version.lib"
+            headerPath="plugin/include&#10;libs/libmysofa/src/hrtf&#10;libs/libmysofa/src/hdf&#10;libs/libmysofa/src/resampler&#10;libs/zlib&#10;vs2026-build/_deps/zlib-build&#10;vs2026-build/mysofa_gen&#10;vs2026-build/plugin/juce_binarydata_WebViewFiles/JuceLibraryCode&#10;$(USERPROFILE)/AppData/Local/PackageManagement/NuGet/Packages/Microsoft.Web.WebView2.1.0.3485.44/build/native/include"
+            extraLinkerFlags="/LIBPATH:&quot;$(USERPROFILE)/AppData/Local/PackageManagement/NuGet/Packages/Microsoft.Web.WebView2.1.0.3485.44/build/native/x64&quot;"
+            prebuildCommand="cd &quot;$(SolutionDir)..\..&quot; &amp;&amp; if not exist libs\libmysofa\src (&quot;C:\Program Files\CMake\bin\cmake.exe&quot; --preset vs2026) &amp;&amp; if not exist vs2026-build\plugin\juce_binarydata_WebViewFiles\JuceLibraryCode\BinaryData1.cpp (&quot;C:\Program Files\CMake\bin\cmake.exe&quot; --build vs2026-build --target WebViewFiles)">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug" optimisation="1" targetName="Picotado"
+                       debugInformationFormat="ProgramDatabase" enablePluginBinaryCopyStep="0"/>
+        <CONFIGURATION isDebug="0" name="Release" optimisation="3" targetName="Picotado"
+                       debugInformationFormat="ProgramDatabase" enablePluginBinaryCopyStep="0"
+                       linkTimeOptimisation="1"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics"     path="libs/juce/modules"/>
+        <MODULEPATH id="juce_audio_devices"    path="libs/juce/modules"/>
+        <MODULEPATH id="juce_audio_formats"    path="libs/juce/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="libs/juce/modules"/>
+        <MODULEPATH id="juce_audio_utils"      path="libs/juce/modules"/>
+        <MODULEPATH id="juce_core"             path="libs/juce/modules"/>
+        <MODULEPATH id="juce_data_structures"  path="libs/juce/modules"/>
+        <MODULEPATH id="juce_dsp"              path="libs/juce/modules"/>
+        <MODULEPATH id="juce_events"           path="libs/juce/modules"/>
+        <MODULEPATH id="juce_graphics"         path="libs/juce/modules"/>
+        <MODULEPATH id="juce_gui_basics"       path="libs/juce/modules"/>
+        <MODULEPATH id="juce_gui_extra"        path="libs/juce/modules"/>
+      </MODULEPATHS>
+    </VS2026>
+  </EXPORTFORMATS>
+  <MODULES>
+    <MODULE id="juce_audio_basics"     showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_audio_devices"    showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_audio_formats"    showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_audio_utils"      showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_core"             showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_data_structures"  showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_dsp"              showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_events"           showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_graphics"         showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_gui_basics"       showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_gui_extra"        showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+  </MODULES>
+  <JUCEOPTIONS JUCE_VST3_CAN_REPLACE_VST2="0" JUCE_USE_CURL="0" JUCE_WEB_BROWSER="1"/>
+</JUCERPROJECT>
