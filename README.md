@@ -2,6 +2,10 @@
 
 > *Granular synth: per-grain binaural HRTF, JUCE 8, WebView synthwave UI.*
 
+<p align="center">
+  <img src="docs/picotado.png" alt="Picotado plugin window — synthwave UI with neon knobs over a perspective grid horizon" width="640" />
+</p>
+
 Picotado is a real-time granular synthesizer plugin with true
 binaural spatialization. Most granulators pan grains across a flat
 stereo field — Picotado convolves every grain against an HRTF
