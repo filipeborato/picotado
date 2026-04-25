@@ -209,8 +209,16 @@ void PicotadoAudioProcessorEditor::loadSofaFunction(
     const juce::Array<juce::var>& args,
     juce::WebBrowserComponent::NativeFunctionCompletion completion) {
   juce::ignoreUnused(args);
+  // Default the picker to %APPDATA%\Picotado\SOFA — that's where
+  // scripts\download-sofa.cmd drops MIT KEMAR. ~/Documents is avoided
+  // because Defender's Controlled Folder Access often blocks writes.
+  auto sofaFolder = juce::File::getSpecialLocation(
+                        juce::File::userApplicationDataDirectory)
+                        .getChildFile("Picotado")
+                        .getChildFile("SOFA");
   fileChooser_ = std::make_unique<juce::FileChooser>(
-      "Select a SOFA HRTF file", juce::File{}, "*.sofa");
+      "Select a SOFA HRTF file",
+      sofaFolder.isDirectory() ? sofaFolder : juce::File{}, "*.sofa");
   auto callback =
       [this, completion = std::move(completion)](
           const juce::FileChooser& fc) mutable {

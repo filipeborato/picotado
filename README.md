@@ -1,7 +1,20 @@
 # Picotado
 
-Granulator VST3 com binaural HRTF e UI synthwave. JUCE 8.0.12 +
-libmysofa + WebView (NexusUI dials embarcados localmente).
+> *Granular synth: per-grain binaural HRTF, JUCE 8, WebView synthwave UI.*
+
+Picotado is a real-time granular synthesizer plugin with true
+binaural spatialization. Most granulators pan grains across a flat
+stereo field — Picotado convolves every grain against an HRTF
+impulse response (any SOFA file you drop in) so each one is placed
+at its own position in 3D space, around the listener's head. Feed
+it a sustained source and you get a cloud of micro-events scattered
+through the binaural sphere.
+
+Built on JUCE 8, libmysofa, and a WebView UI in full synthwave gear.
+Free-flow density (no MIDI), live input only, fixed-pool grain
+engine that pre-allocates everything for predictable real-time
+performance. CMake build with one-shot release script for VST3 +
+Standalone on Windows.
 
 ## TL;DR
 
@@ -28,6 +41,7 @@ rescanear os plug-ins no DAW.
 | Script                          | O que faz                                                |
 | ------------------------------- | -------------------------------------------------------- |
 | `scripts\setup.cmd`             | One-time: instala WebView2 NuGet                         |
+| `scripts\download-sofa.cmd`     | Baixa MIT KEMAR `.sofa` pra `%APPDATA%\Picotado\SOFA\` |
 | `scripts\release.cmd`           | **Build Release + instala VST3** (combo)                 |
 | `scripts\build.cmd [release]`   | Configure (se preciso) + build                           |
 | `scripts\run.cmd [release]`     | Roda o Standalone                                        |
@@ -49,6 +63,48 @@ constrói VST3 + Standalone juntos.
   par HRIR. Sem SOFA, fallback ITD + ILD equal-power.
 - **UI synthwave** — knobs Nexus.Dial com glow neon, grid em
   perspectiva, botões pulsantes.
+
+## SOFA / HRTF — o que carregar
+
+Um arquivo **SOFA** (`.sofa`, padrão AES69) é um container HDF5 que
+guarda **HRIRs medidas ao redor de uma cabeça real**: para cada
+direção amostrada, dois IRs curtos (orelha esquerda + direita).
+Convoluir uma fonte mono contra o par HRIR de uma direção faz a
+fonte *soar como se viesse* daquela direção quando escutada de fone.
+Picotado faz isso **por grão** — cada grão pega uma direção aleatória
+dentro do Spread configurado.
+
+### Quick start
+
+```cmd
+scripts\download-sofa.cmd
+```
+
+Baixa o banco MIT KEMAR (clássico, livre — ~2 MB) pra
+`%APPDATA%\Picotado\SOFA\`. O *Load SOFA…* do plugin já abre nessa
+pasta. Usamos `%APPDATA%` (não `~\Documents`) porque o Controlled
+Folder Access do Windows Defender bloqueia escrita em Documents na
+configuração default da maioria das máquinas.
+
+### Outros bancos livres
+
+- **MIT KEMAR** — pequeno, clássico, manequim.
+  https://sofacoustics.org/data/database/mit/
+- **CIPIC** — 45 sujeitos, UC Davis.
+  https://sofacoustics.org/data/database/cipic/
+- **SADIE II** — alta resolução, com EQ de fone compensado.
+  https://www.york.ac.uk/sadie-project/database.html
+- **LISTEN** (IRCAM).
+  https://sofacoustics.org/data/database/ari%20(listen)/
+- **HUTUBS** (TU Berlin).
+  https://depositonce.tu-berlin.de/items/dc2a3076-a291-417e-97f0-7697e332c960
+
+Catálogo oficial:
+<https://www.sofaconventions.org/mediawiki/index.php/Files>.
+
+Sem SOFA carregado, o plugin cai num fallback **ITD + ILD** —
+posiciona dentro do spread, mas sem a coloração espectral que o
+HRTF dá.
 
 ## Atalhos da UI
 
