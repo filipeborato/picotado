@@ -24,6 +24,8 @@ Standalone on Windows.
 
 Os comandos. Em ordem.
 
+### Windows (suportado)
+
 ```cmd
 ::  Primeira vez (uma vez só, instala WebView2 NuGet):
 scripts\setup.cmd
@@ -39,6 +41,45 @@ scripts\run.cmd
 `scripts\release.cmd` faz **build Release + copia o VST3** pra
 `%LOCALAPPDATA%\Programs\Common\VST3\Picotado.vst3`. Depois é só
 rescanear os plug-ins no DAW.
+
+### Linux / Ubuntu (experimental)
+
+Não há scripts `.sh` ainda — o build é via CMake direto. Caminho
+recomendado pra primeira tentativa:
+
+```bash
+# 1) Dependências de sistema (Ubuntu 22.04 / 24.04)
+sudo apt install -y build-essential cmake ninja-build pkg-config \
+    libwebkit2gtk-4.1-dev libasound2-dev libjack-jackd2-dev \
+    libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev \
+    libxcomposite-dev libxcursor-dev libxinerama-dev libxrandr-dev \
+    libxrender-dev libgl1-mesa-dev
+
+# Em Ubuntu 22.04 use libwebkit2gtk-4.0-dev no lugar do 4.1.
+
+# 2) Configure + build (Ninja, Debug)
+cmake --preset default
+cmake --build build --target Picotado_Standalone
+
+# 3) SOFA HRTF (MIT KEMAR) — equivalente ao download-sofa.cmd
+mkdir -p ~/.config/Picotado/SOFA
+curl -L -o ~/.config/Picotado/SOFA/mit_kemar_normal_pinna.sofa \
+    https://sofacoustics.org/data/database/mit/mit_kemar_normal_pinna.sofa
+
+# 4) Rodar Standalone
+./build/plugin/Picotado_artefacts/Debug/Standalone/Picotado
+```
+
+**Status:** o status real de Linux ainda não foi validado. O download
+de WebView2 já está gated em `if (MSVC)` (CMake), então a etapa de
+configure passa, mas o backend WebKitGTK em runtime e o formato LV2
+não foram exercitados. Veja [`PORTING.md`](PORTING.md) pra escopo
+completo (defines a condicionar, formatos LV2, scripts shell a
+espelhar). Se algum passo aqui falhar, é a hora de transformar o
+plano em código.
+
+Lista canônica de deps de sistema da JUCE em
+`libs/juce/docs/Linux Dependencies.md`.
 
 ## Todos os scripts
 
@@ -80,6 +121,8 @@ dentro do Spread configurado.
 
 ### Quick start
 
+**Windows:**
+
 ```cmd
 scripts\download-sofa.cmd
 ```
@@ -89,6 +132,18 @@ Baixa o banco MIT KEMAR (clássico, livre — ~2 MB) pra
 pasta. Usamos `%APPDATA%` (não `~\Documents`) porque o Controlled
 Folder Access do Windows Defender bloqueia escrita em Documents na
 configuração default da maioria das máquinas.
+
+**Linux:**
+
+```bash
+mkdir -p ~/.config/Picotado/SOFA
+curl -L -o ~/.config/Picotado/SOFA/mit_kemar_normal_pinna.sofa \
+    https://sofacoustics.org/data/database/mit/mit_kemar_normal_pinna.sofa
+```
+
+`~/.config/Picotado/SOFA/` é onde
+`juce::File::userApplicationDataDirectory` resolve em Linux, então
+o picker do plugin abre direto nessa pasta.
 
 ### Outros bancos livres
 
@@ -154,6 +209,8 @@ Build verboso quando o MSBuild engole erros:
 
 ## Build manual (sem scripts)
 
+### Windows (VS 2026)
+
 ```bash
 powershell -ExecutionPolicy Bypass -File scripts/DownloadWebView2.ps1
 cmake --preset vs2026
@@ -163,8 +220,22 @@ cmake --build vs2026-build --config Release --target Picotado_All
 Requer **CMake ≥ 4.3** (generator `Visual Studio 18 2026` foi
 adicionado na 4.3) e **VS 2026 Community**.
 
-Outros presets em `CMakePresets.json`: `default` (Ninja Debug),
-`release` (Ninja Release), `vs` (VS 2022), `Xcode`.
+### Linux (Ninja)
+
+```bash
+cmake --preset default        # Debug, build/
+cmake --build build --target Picotado_Standalone
+# ou: cmake --preset release   # Release, release-build/
+```
+
+Não precisa de PowerShell — o bloco do `DownloadWebView2.ps1` no
+`CMakeLists.txt` já é gated em `if (MSVC)`. Veja a seção Linux do
+TL;DR pra deps de sistema.
+
+### Outros presets
+
+`CMakePresets.json`: `default` (Ninja Debug), `release` (Ninja
+Release), `vs` (VS 2022), `vs2026` (VS 2026), `Xcode`.
 
 ## Arquitetura
 
