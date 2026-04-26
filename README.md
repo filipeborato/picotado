@@ -49,7 +49,7 @@ recomendado pra primeira tentativa:
 
 ```bash
 # 1) Dependências de sistema (Ubuntu 22.04 / 24.04)
-sudo apt install -y build-essential cmake ninja-build pkg-config \
+sudo apt install -y build-essential cmake ninja-build pkg-config curl \
     libwebkit2gtk-4.1-dev libasound2-dev libjack-jackd2-dev \
     libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev \
     libxcomposite-dev libxcursor-dev libxinerama-dev libxrandr-dev \
