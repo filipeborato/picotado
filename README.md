@@ -78,8 +78,8 @@ completo (defines a condicionar, formatos LV2, scripts shell a
 espelhar). Se algum passo aqui falhar, é a hora de transformar o
 plano em código.
 
-Lista canônica de deps de sistema da JUCE em
-`libs/juce/docs/Linux Dependencies.md`.
+Lista canônica de deps de sistema da JUCE:
+<https://github.com/juce-framework/JUCE/blob/master/docs/Linux%20Dependencies.md>.
 
 ## Todos os scripts
 
