@@ -195,7 +195,7 @@ apt install build-essential cmake ninja-build \
 ```
 
 (JUCE mantém lista canônica em
-`libs/juce/docs/Linux Dependencies.md`.)
+[`docs/Linux Dependencies.md`](https://github.com/juce-framework/JUCE/blob/master/docs/Linux%20Dependencies.md).)
 
 **7. Scripts**
 
