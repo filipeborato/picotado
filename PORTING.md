@@ -47,16 +47,25 @@ portável sem alteração. A fricção está concentrada em três pontos:
 
 **1. WebView2 → WKWebView**
 
-Em `plugin/source/PluginEditor.cpp:88` há
-`.withWinWebView2Options(...)` configurando background color e
-user data folder. No Mac essa chamada vira no-op (JUCE ignora), mas
-vale guardá-la dentro de `#if JUCE_WINDOWS` para deixar a intenção
-explícita e remover dependência conceitual.
+A migração não é só mover `plugin/source/PluginEditor.cpp:88`
+`.withWinWebView2Options(...)` para dentro de `#if JUCE_WINDOWS`.
+Hoje o editor também força `.withBackend(...::webview2)`; isso
+precisa ficar **condicional por plataforma**:
+
+- **Windows**: manter `webview2` + `.withWinWebView2Options(...)`;
+- **macOS**: usar backend `default`/`webkit` (WKWebView do sistema);
+- **Linux**: usar backend `default`/`webkit`
+  (WebKitGTK do sistema).
+
+Em outras palavras: fora do Windows, não pode haver backend
+hard-coded em `webview2`, senão o WebView pode nem inicializar.
 
 WKWebView no Mac já é parte do sistema — não há equivalente do
-NuGet WebView2 a baixar. O bloco MSVC em `CMakeLists.txt:117-127`
-(que invoca `scripts/DownloadWebView2.ps1`) só roda em MSVC, então
-no Mac é naturalmente skipado.
+NuGet WebView2 a baixar. Da mesma forma, no CMake, qualquer flag
+como `NEEDS_WEBVIEW2 TRUE` e o bloco `CMakeLists.txt:117-127`
+(que invoca `scripts/DownloadWebView2.ps1`) devem ser **Windows-only**
+(`if (WIN32)` / `if (MSVC)`). Sem isso, o port para macOS/Linux fica
+incompleto mesmo que `.withWinWebView2Options(...)` tenha sido isolado.
 
 **2. Defines específicos de Windows**
 
