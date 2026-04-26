@@ -11,6 +11,10 @@ xcode-build/
 *-build/
 cmake-build-*/
 
+# Projucer-generated trees (regenerated on every "Save Project")
+Builds/
+JuceLibraryCode/
+
 # CPM-managed dependencies (downloaded, not vendored)
 libs/
 
