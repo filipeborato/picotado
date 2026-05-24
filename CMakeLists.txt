@@ -34,6 +34,7 @@ CPMAddPackage(
 # Expose zlib's headers transitively to anything linking against zlibstatic
 # (madler/zlib doesn't declare PUBLIC include dirs on its targets).
 if (TARGET zlibstatic)
+    set_target_properties(zlibstatic PROPERTIES POSITION_INDEPENDENT_CODE ON)
     target_include_directories(zlibstatic PUBLIC
         $<BUILD_INTERFACE:${zlib_SOURCE_DIR}>
         $<BUILD_INTERFACE:${zlib_BINARY_DIR}>
@@ -97,6 +98,7 @@ if (libmysofa_ADDED)
     )
 
     add_library(picotado_mysofa STATIC ${MYSOFA_SOURCES})
+    set_target_properties(picotado_mysofa PROPERTIES POSITION_INDEPENDENT_CODE ON)
     target_include_directories(picotado_mysofa PUBLIC
         "${libmysofa_SOURCE_DIR}/src/hrtf"
         "${MYSOFA_GEN_DIR}"
