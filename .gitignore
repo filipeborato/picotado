@@ -6,6 +6,7 @@ release-build/
 vs-build/
 vs2026-build/
 xcode-build/
+dist/
 
 # Catch-all for ad-hoc CMake build dirs
 *-build/

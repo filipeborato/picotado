@@ -58,7 +58,7 @@ const TOGGLES = ["FREEZE", "BYPASS"];
 function boot() {
   document.getElementById("vendor").innerText = "Borato Company (test)";
   document.getElementById("pluginName").innerText = "Picotado";
-  document.getElementById("pluginVersion").innerText = "0.1.0";
+  document.getElementById("pluginVersion").innerText = "0.1.2";
 
   document.querySelectorAll(".knob-wrap").forEach((node) => {
     const id = node.dataset.param;
