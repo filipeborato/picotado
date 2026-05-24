@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="picot1" name="Picotado" projectType="audioplug" version="0.1.0"
+<JUCERPROJECT id="picot1" name="Picotado" projectType="audioplug" version="0.1.2"
               companyName="Borato Company" companyCopyright="Borato Company"
               bundleIdentifier="com.boratocompany.picotado" pluginManufacturerCode="BoCo"
               pluginCode="Pico" pluginFormats="buildStandalone,buildVST3" pluginCharacteristicsValue=""

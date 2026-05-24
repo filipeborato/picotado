@@ -82,14 +82,20 @@ PicotadoAudioProcessorEditor::PicotadoAudioProcessorEditor(
       freezeRelay_(id::FREEZE.getParamID()),
       bypassRelay_(id::BYPASS.getParamID()),
       webView_{
-          juce::WebBrowserComponent::Options{}
-              .withBackend(
-                  juce::WebBrowserComponent::Options::Backend::webview2)
-              .withWinWebView2Options(
-                  juce::WebBrowserComponent::Options::WinWebView2{}
-                      .withBackgroundColour(juce::Colour::fromRGB(18, 18, 24))
-                      .withUserDataFolder(juce::File::getSpecialLocation(
-                          juce::File::SpecialLocationType::tempDirectory)))
+          [this] {
+            auto options = juce::WebBrowserComponent::Options{};
+#if JUCE_WINDOWS
+            options =
+                options
+                    .withBackend(
+                        juce::WebBrowserComponent::Options::Backend::webview2)
+                    .withWinWebView2Options(
+                        juce::WebBrowserComponent::Options::WinWebView2{}
+                            .withBackgroundColour(juce::Colour::fromRGB(18, 18, 24))
+                            .withUserDataFolder(juce::File::getSpecialLocation(
+                                juce::File::SpecialLocationType::tempDirectory)));
+#endif
+            return options
               .withNativeIntegrationEnabled()
               .withResourceProvider(
                   [this](const auto& url) { return getResource(url); })
@@ -120,7 +126,8 @@ PicotadoAudioProcessorEditor::PicotadoAudioProcessorEditor(
               .withOptionsFrom(positionRandRelay_)
               .withOptionsFrom(spreadRelay_)
               .withOptionsFrom(freezeRelay_)
-              .withOptionsFrom(bypassRelay_)},
+              .withOptionsFrom(bypassRelay_);
+          }()},
       gainAttachment_(*processorRef_.getState().getParameter(
                           id::GAIN.getParamID()),
                       gainRelay_, nullptr),

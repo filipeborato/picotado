@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.22 FATAL_ERROR)
 
-project(Picotado VERSION 0.1.0)
+project(Picotado VERSION 0.1.2)
+
+set(PICOTADO_WEBVIEW2_OPTIONS)
+if (WIN32)
+    list(APPEND PICOTADO_WEBVIEW2_OPTIONS NEEDS_WEBVIEW2 TRUE)
+endif()
 
 juce_add_plugin(${PROJECT_NAME}
     COMPANY_NAME "Borato Company"
@@ -14,7 +19,7 @@ juce_add_plugin(${PROJECT_NAME}
     LV2URI urn:com:boratocompany:picotado
     PRODUCT_NAME "Picotado"
     NEEDS_WEB_BROWSER TRUE
-    NEEDS_WEBVIEW2 TRUE
+    ${PICOTADO_WEBVIEW2_OPTIONS}
 )
 
 get_target_property(PRODUCT_NAME ${PROJECT_NAME} JUCE_PRODUCT_NAME)
@@ -101,8 +106,14 @@ target_compile_definitions(${PROJECT_NAME}
         JUCE_WEB_BROWSER=1
         JUCE_USE_CURL=0
         JUCE_VST3_CAN_REPLACE_VST2=0
-        JUCE_USE_WIN_WEBVIEW2_WITH_STATIC_LINKING=1
 )
+
+if (WIN32)
+    target_compile_definitions(${PROJECT_NAME}
+        PUBLIC
+            JUCE_USE_WIN_WEBVIEW2_WITH_STATIC_LINKING=1
+    )
+endif()
 
 set_source_files_properties(${SOURCES} PROPERTIES COMPILE_OPTIONS "${CXX_PROJECT_WARNINGS}")
 
