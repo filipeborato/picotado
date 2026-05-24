@@ -157,7 +157,8 @@ jobs:
             libxinerama-dev \
             libxrandr-dev \
             libxrender-dev \
-            libwebkit2gtk-4.1-dev
+            libwebkit2gtk-4.1-dev \
+            xvfb
 
       - name: Configure
         run: >
@@ -169,7 +170,7 @@ jobs:
         run: cmake --build build --target Picotado_VST3 --parallel
 
       - name: Build LV2
-        run: cmake --build build --target Picotado_LV2 --parallel
+        run: xvfb-run -a cmake --build build --target Picotado_LV2 --parallel
 
       - name: Package artifacts
         shell: bash
