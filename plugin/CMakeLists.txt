@@ -18,6 +18,7 @@ juce_add_plugin(${PROJECT_NAME}
     FORMATS AU VST3 LV2 Standalone
     LV2URI urn:com:boratocompany:picotado
     PRODUCT_NAME "Picotado"
+    VERSION ${PROJECT_VERSION}
     NEEDS_WEB_BROWSER TRUE
     ${PICOTADO_WEBVIEW2_OPTIONS}
 )

@@ -101,7 +101,7 @@ PicotadoAudioProcessorEditor::PicotadoAudioProcessorEditor(
                   [this](const auto& url) { return getResource(url); })
               .withInitialisationData("vendor", JucePlugin_Manufacturer)
               .withInitialisationData("pluginName", JucePlugin_Name)
-              .withInitialisationData("pluginVersion", JucePlugin_VersionString)
+              .withInitialisationData("pluginVersion", JUCE_PRODUCT_VERSION)
               .withNativeFunction(
                   juce::Identifier{"loadSofa"},
                   [this](const juce::Array<juce::var>& args,
