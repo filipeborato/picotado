@@ -23,7 +23,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - runner: macos-13
+          # Intel binaries are cross-compiled on the Apple Silicon runner
+          # (the macOS SDK ships both slices), avoiding the scarce/queued
+          # macos-13 Intel runners.
+          - runner: macos-14
             arch: x86_64
             arch_label: Intel
           - runner: macos-14
