@@ -17,8 +17,25 @@ permissions:
 
 jobs:
   build-macos:
-    name: macOS Release
-    runs-on: macos-latest
+    name: macOS Release (${{ matrix.arch_label }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Intel binaries are cross-compiled on the Apple Silicon runner
+          # (the macOS SDK ships both slices), avoiding the scarce/queued
+          # macos-13 Intel runners.
+          - runner: macos-14
+            arch: x86_64
+            arch_label: Intel
+          - runner: macos-14
+            arch: arm64
+            arch_label: AppleSilicon
+
+    env:
+      ARCH: ${{ matrix.arch }}
+      ARCH_LABEL: ${{ matrix.arch_label }}
 
     steps:
       - name: Checkout
@@ -35,6 +52,7 @@ jobs:
         run: >
           cmake -S . -B build
           -G Xcode
+          -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }}
           -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO
           -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED=NO
           -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY=""
@@ -60,23 +78,23 @@ jobs:
           test -d "$vst3"
           test -d "$au"
 
-          ditto -c -k --keepParent "$vst3" "$dist/Picotado-v${PICOTADO_VERSION}-macOS-VST3.zip"
-          ditto -c -k --keepParent "$au" "$dist/Picotado-v${PICOTADO_VERSION}-macOS-AU.zip"
+          ditto -c -k --keepParent "$vst3" "$dist/Picotado-v${PICOTADO_VERSION}-macOS-${ARCH_LABEL}-VST3.zip"
+          ditto -c -k --keepParent "$au" "$dist/Picotado-v${PICOTADO_VERSION}-macOS-${ARCH_LABEL}-AU.zip"
 
-          cat > "$dist/INSTALL-macOS.md" <<EOF
-          # Picotado macOS install
+          cat > "$dist/INSTALL-macOS-${ARCH_LABEL}.md" <<EOF
+          # Picotado macOS install (${ARCH_LABEL} / ${ARCH})
 
-          These artifacts are unsigned development builds.
+          These artifacts are unsigned development builds for the ${ARCH} architecture.
 
           ## VST3
 
-          Unzip Picotado-v${PICOTADO_VERSION}-macOS-VST3.zip and copy Picotado.vst3 to:
+          Unzip Picotado-v${PICOTADO_VERSION}-macOS-${ARCH_LABEL}-VST3.zip and copy Picotado.vst3 to:
 
               ~/Library/Audio/Plug-Ins/VST3/
 
           ## AU
 
-          Unzip Picotado-v${PICOTADO_VERSION}-macOS-AU.zip and copy Picotado.component to:
+          Unzip Picotado-v${PICOTADO_VERSION}-macOS-${ARCH_LABEL}-AU.zip and copy Picotado.component to:
 
               ~/Library/Audio/Plug-Ins/Components/
 
@@ -93,28 +111,28 @@ jobs:
       - name: Upload VST3
         uses: actions/upload-artifact@v4
         with:
-          name: Picotado-v${{ env.PICOTADO_VERSION }}-macOS-VST3
-          path: dist/Picotado-v${{ env.PICOTADO_VERSION }}-macOS-VST3.zip
+          name: Picotado-v${{ env.PICOTADO_VERSION }}-macOS-${{ matrix.arch_label }}-VST3
+          path: dist/Picotado-v${{ env.PICOTADO_VERSION }}-macOS-${{ matrix.arch_label }}-VST3.zip
           if-no-files-found: error
 
       - name: Upload AU
         uses: actions/upload-artifact@v4
         with:
-          name: Picotado-v${{ env.PICOTADO_VERSION }}-macOS-AU
-          path: dist/Picotado-v${{ env.PICOTADO_VERSION }}-macOS-AU.zip
+          name: Picotado-v${{ env.PICOTADO_VERSION }}-macOS-${{ matrix.arch_label }}-AU
+          path: dist/Picotado-v${{ env.PICOTADO_VERSION }}-macOS-${{ matrix.arch_label }}-AU.zip
           if-no-files-found: error
 
       - name: Upload install notes
         uses: actions/upload-artifact@v4
         with:
-          name: Picotado-v${{ env.PICOTADO_VERSION }}-macOS-install-notes
-          path: dist/INSTALL-macOS.md
+          name: Picotado-v${{ env.PICOTADO_VERSION }}-macOS-${{ matrix.arch_label }}-install-notes
+          path: dist/INSTALL-macOS-${{ matrix.arch_label }}.md
           if-no-files-found: error
 
       - name: Upload release bundle artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Picotado-v${{ env.PICOTADO_VERSION }}-macOS-release-assets
+          name: Picotado-v${{ env.PICOTADO_VERSION }}-macOS-${{ matrix.arch_label }}-release-assets
           path: dist/*
           if-no-files-found: error
 
@@ -124,9 +142,9 @@ jobs:
         with:
           draft: true
           files: |
-            dist/Picotado-v${{ env.PICOTADO_VERSION }}-macOS-VST3.zip
-            dist/Picotado-v${{ env.PICOTADO_VERSION }}-macOS-AU.zip
-            dist/INSTALL-macOS.md
+            dist/Picotado-v${{ env.PICOTADO_VERSION }}-macOS-${{ matrix.arch_label }}-VST3.zip
+            dist/Picotado-v${{ env.PICOTADO_VERSION }}-macOS-${{ matrix.arch_label }}-AU.zip
+            dist/INSTALL-macOS-${{ matrix.arch_label }}.md
 
   build-linux:
     name: Linux Release
