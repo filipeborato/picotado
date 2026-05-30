@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22 FATAL_ERROR)
 
-project(Picotado VERSION 0.1.2)
+project(Picotado VERSION 0.1.3)
 
 set(PICOTADO_WEBVIEW2_OPTIONS)
 if (WIN32)

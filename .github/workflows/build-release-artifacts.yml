@@ -10,31 +10,35 @@ on:
   workflow_dispatch:
 
 env:
-  PICOTADO_VERSION: "0.1.2"
+  PICOTADO_VERSION: "0.1.3"
 
 permissions:
   contents: write
 
 jobs:
   build-macos:
-    name: macOS Release (${{ matrix.arch_label }})
-    runs-on: ${{ matrix.runner }}
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.runs_on }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          # Intel binaries are cross-compiled on the Apple Silicon runner
-          # (the macOS SDK ships both slices), avoiding the scarce/queued
-          # macos-13 Intel runners.
-          - runner: macos-14
-            arch: x86_64
-            arch_label: Intel
-          - runner: macos-14
-            arch: arm64
+          # Each slice is validated on a NATIVE runner so auval loads the
+          # component without Rosetta. Apple Silicon first shipped on macOS 11.
+          - name: macOS arm64 Release
+            runs_on: macos-15
+            architecture: arm64
             arch_label: AppleSilicon
+            deployment_target: "11.0"
+          # Intel slice on a native Intel runner; 10.15 (Catalina) is a safe min.
+          - name: macOS Intel Release
+            runs_on: macos-15-intel
+            architecture: x86_64
+            arch_label: Intel
+            deployment_target: "10.15"
 
     env:
-      ARCH: ${{ matrix.arch }}
+      ARCH: ${{ matrix.architecture }}
       ARCH_LABEL: ${{ matrix.arch_label }}
 
     steps:
@@ -52,7 +56,8 @@ jobs:
         run: >
           cmake -S . -B build
           -G Xcode
-          -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }}
+          -DCMAKE_OSX_ARCHITECTURES=${{ matrix.architecture }}
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=${{ matrix.deployment_target }}
           -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO
           -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED=NO
           -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY=""
@@ -63,51 +68,52 @@ jobs:
       - name: Build AU
         run: cmake --build build --config Release --target Picotado_AU --parallel
 
-      - name: Validate AU (auval)
+      - name: Sign and validate Audio Unit
         shell: bash
-        # The x86_64 slice is cross-compiled and can only be loaded through
-        # Rosetta on the Apple Silicon runner, so it is best-effort; the native
-        # arm64 leg is the hard gate that fails the build on a bad AU.
-        continue-on-error: ${{ matrix.arch == 'x86_64' }}
         run: |
           set -euo pipefail
 
-          comp="build/plugin/Picotado_artefacts/Release/AU/Picotado.component"
-          test -d "$comp"
+          au="build/plugin/Picotado_artefacts/Release/AU/Picotado.component"
+          test -d "$au"
 
-          # auval only validates units it can find in the AU search paths.
-          dest="$HOME/Library/Audio/Plug-Ins/Components"
-          mkdir -p "$dest"
-          rm -rf "$dest/Picotado.component"
-          cp -R "$comp" "$dest/"
+          # Ad-hoc sign the component in place so the bundle we validate is the
+          # exact one we ship. auval on recent macOS rejects unsigned components.
+          codesign --force --deep --sign - "$au"
+          codesign --verify --deep --strict --verbose=2 "$au"
 
-          # Force the Audio Component registry to pick up the new unit.
-          killall -9 AudioComponentRegistrar 2>/dev/null || true
+          # Install into the per-user Components path so auval can discover it.
+          components="$HOME/Library/Audio/Plug-Ins/Components"
+          mkdir -p "$components"
+          rm -rf "$components/Picotado.component"
+          cp -R "$au" "$components/"
 
-          # Use the validator matching the built slice (x86_64 via Rosetta).
-          if [ "$ARCH" = "x86_64" ]; then
-            auval=(arch -x86_64 auval)
-          else
-            auval=(auval)
-          fi
+          installed="$components/Picotado.component"
 
-          echo "Registered Picotado audio units:"
-          "${auval[@]}" -a | grep -iE 'picotado|Bort' || true
+          # Clear quarantine and the AU registration cache so a fresh scan runs.
+          xattr -dr com.apple.quarantine "$installed" || true
+          killall -9 AudioComponentRegistrar >/dev/null 2>&1 || true
+          rm -f "$HOME/Library/Caches/AudioUnitCache/com.apple.audiounits.cache" || true
 
-          # Codes come from juce_add_plugin(): kAudioUnitType_Effect = aufx,
-          # PLUGIN_CODE = Pcto, PLUGIN_MANUFACTURER_CODE = Bort.
-          echo "Validating AU aufx Pcto Bort ($ARCH)"
-          "${auval[@]}" -v aufx Pcto Bort
+          # Make the validated slice (arm64 / x86_64) obvious in the log.
+          file "$installed/Contents/MacOS/"*
 
-      - name: Validate plugin (pluginval)
+          # Best-effort listing of our component; never fails the job.
+          auval -a | grep -i Picotado || true
+
+          # Mandatory validation. Codes come from juce_add_plugin():
+          # kAudioUnitType_Effect = aufx, PLUGIN_CODE = Pico,
+          # PLUGIN_MANUFACTURER_CODE = BoCo. With `set -e`, a non-zero auval
+          # exit fails this step and the whole workflow.
+          auval -v aufx Pico BoCo
+
+      - name: Validate plugin GUI (pluginval)
         shell: bash
-        # pluginval opens/closes the editor and sweeps parameters; for a
-        # WebView (WebBrowserComponent) UI this is what catches a GUI that
-        # fails to load on macOS. Hard gate on arm64, best-effort on x86_64.
-        continue-on-error: ${{ matrix.arch == 'x86_64' }}
         run: |
           set -euo pipefail
 
+          # Picotado's editor is a JUCE WebView (NEEDS_WEB_BROWSER). pluginval
+          # opens/closes the editor and sweeps parameters, which is what surfaces
+          # a WebView UI that fails to load on macOS.
           curl -sSL -o pluginval.zip \
             https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_macOS.zip
           unzip -q pluginval.zip
@@ -117,15 +123,8 @@ jobs:
           au="build/plugin/Picotado_artefacts/Release/AU/Picotado.component"
           vst3="build/plugin/Picotado_artefacts/Release/VST3/Picotado.vst3"
 
-          runner=("$pv" --strictness-level 5 --timeout-ms 120000 --validate)
-          if [ "$ARCH" = "x86_64" ]; then
-            runner=(arch -x86_64 "${runner[@]}")
-          fi
-
-          echo "pluginval AU ($ARCH)"
-          "${runner[@]}" "$au"
-          echo "pluginval VST3 ($ARCH)"
-          "${runner[@]}" "$vst3"
+          "$pv" --strictness-level 5 --timeout-ms 120000 --validate "$au"
+          "$pv" --strictness-level 5 --timeout-ms 120000 --validate "$vst3"
 
       - name: Package artifacts
         shell: bash
@@ -142,29 +141,33 @@ jobs:
           test -d "$vst3"
           test -d "$au"
 
-          ditto -c -k --keepParent "$vst3" "$dist/Picotado-v${PICOTADO_VERSION}-macOS-${ARCH_LABEL}-VST3.zip"
-          ditto -c -k --keepParent "$au" "$dist/Picotado-v${PICOTADO_VERSION}-macOS-${ARCH_LABEL}-AU.zip"
+          base="Picotado-v${PICOTADO_VERSION}-macOS-${ARCH_LABEL}"
+
+          # The AU is zipped from the same bundle that was signed and validated.
+          ditto -c -k --keepParent "$vst3" "$dist/${base}-VST3.zip"
+          ditto -c -k --keepParent "$au" "$dist/${base}-AU.zip"
 
           cat > "$dist/INSTALL-macOS-${ARCH_LABEL}.md" <<EOF
           # Picotado macOS install (${ARCH_LABEL} / ${ARCH})
 
-          These artifacts are unsigned development builds for the ${ARCH} architecture.
+          The Audio Unit is ad-hoc signed and was validated in CI with
+          \`auval -v aufx Pico BoCo\`. The VST3 is an unsigned development build.
 
           ## VST3
 
-          Unzip Picotado-v${PICOTADO_VERSION}-macOS-${ARCH_LABEL}-VST3.zip and copy Picotado.vst3 to:
+          Unzip ${base}-VST3.zip and copy Picotado.vst3 to:
 
               ~/Library/Audio/Plug-Ins/VST3/
 
           ## AU
 
-          Unzip Picotado-v${PICOTADO_VERSION}-macOS-${ARCH_LABEL}-AU.zip and copy Picotado.component to:
+          Unzip ${base}-AU.zip and copy Picotado.component to:
 
               ~/Library/Audio/Plug-Ins/Components/
 
           ## Gatekeeper note
 
-          Because these builds are not notarized, macOS may block them the first time. If needed, remove quarantine after unzipping:
+          If macOS blocks the unsigned VST3, remove quarantine after unzipping:
 
               xattr -dr com.apple.quarantine Picotado.vst3
               xattr -dr com.apple.quarantine Picotado.component
