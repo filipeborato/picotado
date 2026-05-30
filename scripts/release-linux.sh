@@ -48,7 +48,7 @@ detect_version() {
     fi
   fi
 
-  printf '0.1.2\n'
+  printf '0.1.3\n'
 }
 
 install_ubuntu_deps() {
